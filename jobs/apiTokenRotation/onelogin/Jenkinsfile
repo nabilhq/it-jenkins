@@ -1,0 +1,57 @@
+import groovy.json.JsonSlurperClassic
+
+def skipRemainingStages = false
+
+pipeline {
+    agent any
+    stages {
+        stage("0 - Get OneLogin API Access Token") {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: "${env.credentialId}", usernameVariable: 'olClientId', passwordVariable: 'olClientSecret')
+                ])
+                script {
+                    // set api endpoint
+                    String url = "https://api." + env.oneloginDomainRegion + ".onelogin.com/auth/oauth2/v2/token"
+                    // execute curl
+                    String response = sh(
+                        script: """
+                            curl $url \
+                            -X POST \
+                            -H "Authorization: client_id:${olClientId}, client_secret:${olClientSecret}" \
+                            -H "Content-Type: application/json" \
+                            -d '{
+                                "grant_type":"client_credentials"
+                            }'
+                        """,
+                        returnStdout: true
+                    ).trim()
+                    
+                    println(response)
+                    // parse json response
+                    get_onelogin_access_token = new JsonSlurperClassic().parseText(response)
+                    println(get_onelogin_access_token)
+                }
+            }
+        }
+        /*
+        stage("10 - Set AWS Secret") {
+             when {
+                expression {
+                    !skipRemainingStages
+                }
+            }
+            steps {
+                script {
+                    // update aws secret
+                    String response = sh(
+                        script: """
+                            aws secretsmanager update-secret --secret-id=${awsSecretId} --secret-string=
+                        """,
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }*/
+    }
+}
