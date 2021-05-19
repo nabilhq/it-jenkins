@@ -73,7 +73,7 @@ jobs:
         description('contains pipelines that rotate api tokens.')
       }
   - script: >
-      pipelineJob('apiTokenRotation/onelogin') {
+      pipelineJob('apiTokenRotation/oneloginManageAll') {
         description('rotates the onelogin api token.')
         parameters {
           stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-manage-all', 'id of the credential to use.')
@@ -82,7 +82,32 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/apiTokenRotation/oneloginProd/Jenkinsfile'
+            scriptPath 'jobs/apiTokenRotation/onelogin/Jenkinsfile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/nabilhq/jenkins-it'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('*/main')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = true)
+          }
+        }
+      }
+  - script: >
+      pipelineJob('apiTokenRotation/oneloginRead') {
+        description('rotates the onelogin api token.')
+        parameters {
+          stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-read', 'id of the credential to use.')
+          stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-read', 'id of the aws secret to store the new access token.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/apiTokenRotation/onelogin/Jenkinsfile'
             scm {
               git {
                 remote { 
@@ -101,6 +126,31 @@ jobs:
       folder('oneloginApiV2') {
         displayName('OneLogin API v2')
         description('contains pipelines that invoke onelogin api v2 enpoints.')
+      }
+  - script: >
+      pipelineJob('oneloginApiV2/revokeOneloginToken') {
+        description('Revoke an access token and refresh token pair.')
+        parameters {
+          stringParam('clientCredentialId', null, 'id of the client credential.')
+          stringParam('accessTokenCredentialId', null, 'id of the access token token credential.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/oneloginApiV2/revokeOneloginToken/Jenkinsfile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/nabilhq/jenkins-it'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('*/main')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = true)
+          }
+        }
       }
   - script: >
       pipelineJob('oneloginApiV2/getOneloginUsers') {

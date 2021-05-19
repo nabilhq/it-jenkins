@@ -1,57 +1,67 @@
 import groovy.json.JsonSlurperClassic
 
-def skipRemainingStages = false
-
 pipeline {
     agent any
     stages {
-        stage("0 - Get OneLogin API Access Token") {
+        stage("00 - Revoke OneLogin Token") {
             steps {
-                withCredentials([
-                    usernamePassword(credentialsId: "${env.credentialId}", usernameVariable: 'olClientId', passwordVariable: 'olClientSecret')
-                ])
                 script {
-                    // set api endpoint
-                    String url = "https://api." + env.oneloginDomainRegion + ".onelogin.com/auth/oauth2/v2/token"
-                    // execute curl
-                    String response = sh(
-                        script: """
-                            curl $url \
-                            -X POST \
-                            -H "Authorization: client_id:${olClientId}, client_secret:${olClientSecret}" \
-                            -H "Content-Type: application/json" \
-                            -d '{
-                                "grant_type":"client_credentials"
-                            }'
-                        """,
-                        returnStdout: true
-                    ).trim()
-                    
-                    println(response)
-                    // parse json response
-                    get_onelogin_access_token = new JsonSlurperClassic().parseText(response)
-                    println(get_onelogin_access_token)
+                    // trigger build to revoke access token
+                    def revokeOneloginToken = build(
+                        job: 'oneloginApiV2/revokeOneloginToken', 
+                        propagate: true, 
+                        wait: true,
+                        parameters: [
+                            stringParam(name: 'clientCredentialId', value: env.credentialId),
+                            stringParam(name: 'accessTokenCredentialId', value: env.awsSecretId)
+                        ]
+                    )
                 }
             }
         }
-        /*
-        stage("10 - Set AWS Secret") {
-             when {
-                expression {
-                    !skipRemainingStages
+        stage("10 - Generate OneLogin Access Token") {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: env.credentialId, usernameVariable: 'olClientId', passwordVariable: 'olClientSecret')
+                ]) {
+                    script {
+                        // set api endpoint
+                        String url = "https://api." + env.oneloginDomainRegion + ".onelogin.com/auth/oauth2/v2/token"
+                        // execute curl
+                        String response = sh(
+                            script: """
+                                curl $url \
+                                -X POST \
+                                -H "Authorization: client_id:\$olClientId, client_secret:\$olClientSecret" \
+                                -H "Content-Type: application/json" \
+                                -d '{"grant_type":"client_credentials"}'
+                            """,
+                            returnStdout: true
+                        ).trim()
+                        // parse json response
+                        getOneloginAccessToken = new JsonSlurperClassic().parseText(response)
+                        // check if reponse indicated a failure
+                        if (getOneloginAccessToken.containsKey("status")) {
+                            // throw error
+                            error('Error: ' + getOneloginAccessToken['status']['message'])
+                        }
+                    }
                 }
             }
+        }
+        stage("20 - Update AWS Secret") {
             steps {
                 script {
                     // update aws secret
-                    String response = sh(
+                    sh(
                         script: """
-                            aws secretsmanager update-secret --secret-id=${awsSecretId} --secret-string=
+                            set +x
+                            aws secretsmanager update-secret --secret-id=$awsSecretId --secret-string=${getOneloginAccessToken['access_token']}
                         """,
                         returnStdout: true
                     ).trim()
                 }
             }
-        }*/
+        }
     }
 }
