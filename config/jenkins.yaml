@@ -117,7 +117,7 @@ jobs:
                   url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
-                branch('*/main')
+                branch('*/nabil/ol-token-rotation')
                 extensions {}
               }
             }
