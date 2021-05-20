@@ -7,9 +7,9 @@ jobs:
   - script: >
       pipelineJob('codeDeploy/deployJenkinsConfig') {
         description('deploys a new config and or job.')
-        stringParam('GitBranch', '*/main', 'githup branch to use.')
+        stringParam('GitBranch', '*/nabil/ol-token-rotation', 'githup branch to use.')
         stringParam('GitAccount', 'nabilhq', 'githup account the repo belongs to.')
-        stringParam('GitRepo', '*/main', 'githup repo to use.')
+        stringParam('GitRepo', 'jenkins-it', 'githup repo to use.')
         triggers {
           githubPush()
         }
