@@ -7,6 +7,9 @@ jobs:
   - script: >
       pipelineJob('codeDeploy/deployJenkinsConfig') {
         description('deploys a new config and or job.')
+        stringParam('GitBranch', '*/main', 'githup branch to use.')
+        stringParam('GitAccount', 'nabilhq', 'githup account the repo belongs to.')
+        stringParam('GitRepo', '*/main', 'githup repo to use.')
         triggers {
           githubPush()
         }
@@ -16,10 +19,10 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
-                branch('*/main')
+                branch('^${GitBranch}')
                 extensions {}
               }
             }
@@ -36,7 +39,7 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
                 branch('*/main')
@@ -56,7 +59,7 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
                 branch('*/main')
@@ -86,7 +89,7 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
                 branch('*/main')
@@ -111,7 +114,7 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
                 branch('*/main')
@@ -141,7 +144,7 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
                 branch('*/main')
@@ -165,7 +168,7 @@ jobs:
             scm {
               git {
                 remote { 
-                  url 'https://github.com/nabilhq/jenkins-it'
+                  url 'https://github.com/{GitAccount}/{GitRepo}'
                   credentials('jenkins-it-prod-github-creds')
                 }
                 branch('*/main')

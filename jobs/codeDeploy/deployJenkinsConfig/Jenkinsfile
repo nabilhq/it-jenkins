@@ -1,0 +1,20 @@
+pipeline {
+    agent any
+    stages {
+        stage ('00 - Copy jenkins.yaml') {
+            when {
+                changeset "**/jenkins.yaml"
+            }
+            steps {
+                sh(
+                    script: """
+                        cp $WORKSPACE/config/jenkins.yaml $JENKINS_HOME
+                        sed -i 's/old-text/new-text/g' input.txt
+                        sed -i 's/{GitAccount}/$GitAccount/g' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's/{GitAccount}/$GitRepo/g' $JENKINS_HOME/jenkins.yaml
+                    """
+                )
+            }
+        }
+    }
+}
