@@ -26,6 +26,7 @@ pipeline {
             }
             steps {
                 script {
+                    echo 'pending'
                     /*
                     // trigger build to revoke access token
                     build(
