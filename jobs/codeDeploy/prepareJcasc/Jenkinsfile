@@ -1,0 +1,16 @@
+pipeline {
+    agent any
+    stages {
+        stage ('00 - Prepare jenkins.yaml') {
+            steps {
+                sh(
+                    script: """
+                        cp $WORKSPACE/config/jenkins.yaml $JENKINS_HOME
+                        sed -i 's/{GitAccount}/$gitAccount/g' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's/{GitRepo}/$gitRepo/g' $JENKINS_HOME/jenkins.yaml
+                    """
+                )
+            }
+        }
+    }
+}

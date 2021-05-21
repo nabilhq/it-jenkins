@@ -1,18 +1,40 @@
 pipeline {
     agent any
     stages {
-        stage ('00 - Copy jenkins.yaml') {
+        stage ('00 - Prepare jenkins.yaml') {
             when {
                 changeset "**/jenkins.yaml"
             }
             steps {
-                sh(
-                    script: """
-                        cp $WORKSPACE/config/jenkins.yaml $JENKINS_HOME
-                        sed -i 's/{GitAccount}/$GitAccount/g' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{GitRepo}/$GitRepo/g' $JENKINS_HOME/jenkins.yaml
-                    """
-                )
+                script {
+                    // trigger build to revoke access token
+                    build(
+                        job: 'codeDeploy/prepareJcasc', 
+                        propagate: true, 
+                        wait: true,
+                        parameters: [
+                            stringParam(name: 'gitAccount', value: env.gitAccount),
+                            stringParam(name: 'gitRepo', value: env.gitRepo),
+                        ]
+                    )
+                }
+            }
+        }
+        stage ('10 - Reload jenkins.yaml') {
+            when {
+                changeset "**/jenkins.yaml"
+            }
+            steps {
+                script {
+                    /*
+                    // trigger build to revoke access token
+                    build(
+                        job: 'codeDeploy/reloadJcasc', 
+                        propagate: true, 
+                        wait: true
+                    )
+                    */
+                }
             }
         }
     }

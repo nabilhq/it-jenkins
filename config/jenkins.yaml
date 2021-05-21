@@ -35,6 +35,10 @@ jobs:
   - script: >
       pipelineJob('codeDeploy/prepareJcasc') {
         description('prepares the jenkins casc config for deployment.')
+        parameters {
+          stringParam('gitAccount', null, 'github account the repo belongs to.')
+          stringParam('gitRepo', null, 'github repo to use.')
+        }
         definition {
           cpsScm {
             scriptPath 'jobs/codeDeploy/prepareJcasc/Jenkinsfile'
@@ -55,6 +59,9 @@ jobs:
   - script: >
       pipelineJob('codeDeploy/reloadJcasc') {
         description('reloads the jenkins casc config.')
+        parameters {
+          stringParam('credentialId', 'jenkins-it-prod-api-creds', 'id of jenkins api credential.')
+        }
         definition {
           cpsScm {
             scriptPath 'jobs/codeDeploy/reloadJcasc/Jenkinsfile'
@@ -163,6 +170,7 @@ jobs:
         parameters {
           stringParam('credentialId', null, 'id of the credential to use.')
           stringParam('email', null, 'email of the user to return.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
         }
         definition {
           cpsScm {
