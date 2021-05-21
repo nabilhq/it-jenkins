@@ -13,6 +13,7 @@ pipeline {
                         propagate: true, 
                         wait: true,
                         parameters: [
+                            stringParam(name: 'gitBranch', value: env.gitBranch)
                             stringParam(name: 'gitAccount', value: env.gitAccount),
                             stringParam(name: 'gitRepo', value: env.gitRepo),
                         ]
