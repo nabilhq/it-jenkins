@@ -28,7 +28,7 @@ jobs:
                 extensions {}
               }
             }
-            lightweight(lightweight = true)
+            lightweight(lightweight = false)
           }
         }
       }
@@ -53,7 +53,7 @@ jobs:
                 extensions {}
               }
             }
-            lightweight(lightweight = true)
+            lightweight(lightweight = false)
           }
         }
       }
@@ -77,7 +77,7 @@ jobs:
                 extensions {}
               }
             }
-            lightweight(lightweight = true)
+            lightweight(lightweight = false)
           }
         }
       }
