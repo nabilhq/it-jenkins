@@ -1,12 +1,22 @@
 pipeline {
     agent any
     stages {
-        stage ('00 - Prepare jenkins.yaml') {
+        stage ('00 - Get jenkins Yaml Config Param') {
             when {
                 changeset "**/jenkins.yaml"
             }
             steps {
                 script {
+                    sh(
+                        String response = sh(
+                            script: """
+                                aws secretsmanager get-secret-value --secret-id $awsSMJenkinsYamlConfigParamsId --region $awsRegion
+                            """,
+                            returnStdout: true
+                        ).trim()
+                    )
+                    // parse json response
+                    def secretValue = new JsonSlurperClassic().parseText(response)['SecretString']
                     // trigger build to revoke access token
                     build(
                         job: 'codeDeploy/prepareJcasc', 
@@ -16,26 +26,15 @@ pipeline {
                             stringParam(name: 'gitBranch', value: env.gitBranch),
                             stringParam(name: 'gitAccount', value: env.gitAccount),
                             stringParam(name: 'gitRepo', value: env.gitRepo),
+                            stringParam(name: 'serviceName', value: secretValue['serviceName']),
+                            stringParam(name: 'environment', value: secretValue['environment']),
+                            stringParam(name: 'domainName', value: secretValue['domain']),
+                            stringParam(name: 'adminUsername', value: secretValue['adminUsername']),
+                            stringParam(name: 'adminEmail', value: secretValue['adminEmail']),
+                            stringParam(name: 'samlMetadataUrl', value: secretValue['samlLogoutUrl']),
+                            stringParam(name: 'samlLogoutUrl', value: secretValue['samlLogoutUrl'])
                         ]
                     )
-                }
-            }
-        }
-        stage ('10 - Reload jenkins.yaml') {
-            when {
-                changeset "**/jenkins.yaml"
-            }
-            steps {
-                script {
-                    echo 'pending'
-                    /*
-                    // trigger build to revoke access token
-                    build(
-                        job: 'codeDeploy/reloadJcasc', 
-                        propagate: true, 
-                        wait: true
-                    )
-                    */
                 }
             }
         }
