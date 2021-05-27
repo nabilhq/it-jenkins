@@ -26,19 +26,6 @@ jenkins:
   remotingSecurity:
     enabled: true
   scmCheckoutRetryCount: 0
-  securityRealm:
-    saml:
-      binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
-      displayNameAttributeName: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-      emailAttributeName: "Email"
-      groupsAttributeName: "http://schemas.xmlsoap.org/claims/Group"
-      idpMetadataConfiguration:
-        period: 0
-        url: "{samlMetadataUrl}"
-      logoutUrl: "{samlLogoutUrl}"
-      maximumAuthenticationLifetime: 86400
-      usernameAttributeName: "Username"
-      usernameCaseConversion: "lowercase"
   slaveAgentPort: -1
   updateCenter:
     sites:
@@ -61,6 +48,7 @@ security:
     approvedSignatures:
     - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
     - "new groovy.json.JsonSlurperClassic"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object java.lang.String"
 unclassified:
   awsCredentialsProvider:
     cache: true
@@ -136,7 +124,7 @@ jobs:
         parameters {
           stringParam('gitBranch', '*/nabil/ol-token-rotation', 'github branch to use.')
           stringParam('awsSMJenkinsYamlConfigParamsId', 'jenkins-it-prod-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params')
-          stringParam('awsRegion', 'us-east1', 'aws region where the aws secret is.')
+          stringParam('awsRegion', 'us-east-1', 'aws region where the aws secret is.')
         }
         triggers {
           githubPush()
@@ -170,8 +158,6 @@ jobs:
           stringParam('domainName', null, 'domain name to use when preparing the jcasc file.')
           stringParam('adminUsername', null, 'jenkins admin user name to use when preparing the jcasc file.')
           stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file..')
-          stringParam('samlMetadataUrl', null, 'idp saml metadata url to use when preparing the jcasc file..')
-          stringParam('samlLogoutUrl', null, 'idp saml logout url to use to use when preparing the jcasc file.')
         }
         definition {
           cpsScm {
@@ -191,6 +177,18 @@ jobs:
         }
       }
   - script: >
+      job('codeDeploy/reloadJcasc') {
+        description('reloads the jenkins.yaml config.')
+        steps {
+          systemGroovyCommand("""
+            import io.jenkins.plugins.casc.ConfigurationAsCode;
+            ConfigurationAsCode.get().configure()
+          """.stripIndent()){
+            sandbox(true)
+          }
+        }
+      }
+  - script: >
       folder('apiTokenRotation') {
         displayName('API Token Rotation')
         description('contains pipelines that rotate api tokens.')
@@ -203,7 +201,6 @@ jobs:
           stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-manage-all', 'id of the aws secret to store the new access token.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
           stringParam('gitBranch', '*/main', 'github branch to use.')
-          stringParam('Test', '*/main', 'Test branch to use.')
         }
         definition {
           cpsScm {
