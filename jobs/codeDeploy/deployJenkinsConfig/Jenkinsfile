@@ -3,22 +3,29 @@ import groovy.json.JsonSlurperClassic
 pipeline {
     agent any
     stages {
-        stage ('00 - Get jenkins Yaml Config Param') {
+        stage ('00 - Get jenkins.yaml params') {
             when {
                 changeset "**/jenkins.yaml"
             }
             steps {
                 script {
-                    sh(
-                        String response = sh(
-                            script: """
-                                aws secretsmanager get-secret-value --secret-id $awsSMJenkinsYamlConfigParamsId --region $awsRegion
-                            """,
-                            returnStdout: true
-                        ).trim()
-                    )
+                    env.response = sh(
+                        script: """
+                            aws secretsmanager get-secret-value --secret-id $awsSMJenkinsYamlConfigParamsId --region $awsRegion
+                        """,
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        stage ('10 - Prepare jenkins.yaml') {
+            when {
+                changeset "**/jenkins.yaml"
+            }
+            steps {
+                script {
                     // parse json response
-                    def secretValue = new JsonSlurperClassic().parseText(response)['SecretString']
+                    def secretValue = new JsonSlurperClassic().parseText(new JsonSlurperClassic().parseText(env.response)['SecretString'])
                     // trigger build to revoke access token
                     build(
                         job: 'codeDeploy/prepareJcasc', 
@@ -26,19 +33,32 @@ pipeline {
                         wait: true,
                         parameters: [
                             stringParam(name: 'gitBranch', value: env.gitBranch),
-                            stringParam(name: 'gitAccount', value: env.gitAccount),
-                            stringParam(name: 'gitRepo', value: env.gitRepo),
+                            stringParam(name: 'gitAccount', value: secretValue['serviceName']),
+                            stringParam(name: 'gitRepo', value: secretValue['gitRepo']),
                             stringParam(name: 'serviceName', value: secretValue['serviceName']),
                             stringParam(name: 'environment', value: secretValue['environment']),
                             stringParam(name: 'domainName', value: secretValue['domain']),
                             stringParam(name: 'adminUsername', value: secretValue['adminUsername']),
-                            stringParam(name: 'adminEmail', value: secretValue['adminEmail']),
-                            stringParam(name: 'samlMetadataUrl', value: secretValue['samlLogoutUrl']),
-                            stringParam(name: 'samlLogoutUrl', value: secretValue['samlLogoutUrl'])
+                            stringParam(name: 'adminEmail', value: secretValue['adminEmail'])
                         ]
                     )
                 }
             }
         }
+        stage ('20 - Reload jenkins.yaml') {
+            when {
+                changeset "**/jenkins.yaml"
+            }
+            steps {
+                script {
+                    // build step to reload jenkins config yaml
+                    build(
+                        job: 'codeDeploy/reloadJcasc', 
+                        propagate: true, 
+                        wait: true
+                    )
+                }
+            }
+        } 
     }
 }
