@@ -123,7 +123,7 @@ jobs:
         description('deploys a new config and or job.')
         parameters {
           stringParam('gitBranch', '*/main', 'github branch to use.')
-          stringParam('awsSMJenkinsYamlConfigParamsId', 'jenkins-it-prod-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params')
+          stringParam('awsSMJenkinsYamlConfigParamsId', 'jenkins-it-prod-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params.')
           stringParam('awsRegion', 'us-east-1', 'aws region where the aws secret is.')
         }
         triggers {
