@@ -1,0 +1,304 @@
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+      - "Overall/Administer:{adminUsername}"
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  disabledAdministrativeMonitors:
+  - "jenkins.security.QueueItemAuthenticatorMonitor"
+  labelAtoms:
+  - name: "master"
+  markupFormatter: "plainText"
+  mode: NORMAL
+  myViewsTabBar: "standard"
+  numExecutors: 2
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  slaveAgentPort: -1
+  updateCenter:
+    sites:
+    - id: "default"
+      url: "https://updates.jenkins.io/update-center.json"
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  copyartifact:
+    mode: PRODUCTION
+  sSHD:
+    port: -1
+  scriptApproval:
+    approvedSignatures:
+    - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+    - "new groovy.json.JsonSlurperClassic"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object java.lang.String"
+unclassified:
+  awsCredentialsProvider:
+    cache: true
+    listSecrets:
+      filters:
+      - key: "tag-key"
+        values:
+        - "Service"
+      - key: "tag-value"
+        values:
+        - "{serviceName}"
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitHubPluginConfig:
+    configs:
+    - credentialsId: "{serviceName}-{environment}-github-at"
+      manageHooks: false
+      name: "github"
+    hookSecretConfigs:
+    - credentialsId: "{serviceName}-{environment}-github-webhook-shared-secret"
+    hookUrl: "https://{serviceName}.{domain}/github-webhook/"
+  gitSCM:
+    createAccountBasedOnEmail: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+  globalSlackNotifier:
+    notifyOnAborted: false
+    notifyOnFail: false
+    notifyOnNotBuilt: false
+    notifyOnSuccess: false
+    notifyOnUnstable: false
+  junitTestResultStorage:
+    storage: "file"
+  location:
+    adminAddress: "{adminEmail}"
+    url: "https://{serviceName}.{domain}/"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  mavenModuleSet:
+    localRepository: "default"
+  pollSCM:
+    pollingThreadCount: 10
+  slackNotifier:
+    botUser: false
+    sendAsText: false
+  upstream:
+    globalUpstreamFilterStrategy: UseOldest
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
+jobs:
+  - script: >
+      folder('codeDeploy') {
+        displayName('Code Deploy')
+        description('contains pipelines used for deploying jenkins configs.')
+      }
+  - script: >
+      pipelineJob('codeDeploy/deployJenkinsConfig') {
+        description('deploys a new config and or job.')
+        parameters {
+          stringParam('gitBranch', '*/main', 'github branch to use.')
+          stringParam('awsSMJenkinsYamlConfigParamsId', 'jenkins-it-prod-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params')
+          stringParam('awsRegion', 'us-east-1', 'aws region where the aws secret is.')
+        }
+        triggers {
+          githubPush()
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/codeDeploy/deployJenkinsConfig/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
+  - script: >
+      pipelineJob('codeDeploy/prepareJcasc') {
+        description('prepares the jenkins casc config for deployment.')
+        parameters {
+          stringParam('gitAccount', null, 'github account the repo belongs to.')
+          stringParam('gitRepo', null, 'github repo to use.')
+          stringParam('gitBranch', null, 'githup branch to use.')
+          stringParam('serviceName', null, 'service name to use when preparing the jcasc file.')
+          stringParam('environment', null, 'environment tag to use when preparing the jcasc file.')
+          stringParam('domainName', null, 'domain name to use when preparing the jcasc file.')
+          stringParam('adminUsername', null, 'jenkins admin user name to use when preparing the jcasc file.')
+          stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file..')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/codeDeploy/prepareJcasc/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
+  - script: >
+      job('codeDeploy/reloadJcasc') {
+        description('reloads the jenkins.yaml config.')
+        steps {
+          systemGroovyCommand("""
+            import io.jenkins.plugins.casc.ConfigurationAsCode;
+            ConfigurationAsCode.get().configure()
+          """.stripIndent()){
+            sandbox(true)
+          }
+        }
+      }
+  - script: >
+      folder('apiTokenRotation') {
+        displayName('API Token Rotation')
+        description('contains pipelines that rotate api tokens.')
+      }
+  - script: >
+      pipelineJob('apiTokenRotation/oneloginManageAll') {
+        description('rotates the onelogin api token.')
+        parameters {
+          stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-manage-all', 'id of the credential to use.')
+          stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-manage-all', 'id of the aws secret to store the new access token.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+          stringParam('gitBranch', '*/main', 'github branch to use.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/apiTokenRotation/onelogin/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
+  - script: >
+      pipelineJob('apiTokenRotation/oneloginRead') {
+        description('rotates the onelogin api token.')
+        parameters {
+          stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-read', 'id of the credential to use.')
+          stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-read', 'id of the aws secret to store the new access token.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+          stringParam('gitBranch', '*/main', 'github branch to use.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/apiTokenRotation/onelogin/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
+  - script: >
+      folder('oneloginApiV2') {
+        displayName('OneLogin API v2')
+        description('contains pipelines that invoke onelogin api v2 enpoints.')
+      }
+  - script: >
+      pipelineJob('oneloginApiV2/revokeOneloginToken') {
+        description('Revoke an access token and refresh token pair.')
+        parameters {
+          stringParam('clientCredentialId', null, 'id of the client credential.')
+          stringParam('accessTokenCredentialId', null, 'id of the access token token credential.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+          stringParam('gitBranch', '*/main', 'github branch to use.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/oneloginApiV2/revokeOneloginToken/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
+  - script: >
+      pipelineJob('oneloginApiV2/getOneloginUsers') {
+        description('returns onelogin user(s).; if no params are provided this pipeline returns all users.')
+        parameters {
+          stringParam('credentialId', null, 'id of the credential to use.')
+          stringParam('email', null, 'email of the user to return.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+          stringParam('gitBranch', '*/main', 'github branch to use.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/oneloginApiV2/getOneloginUsers/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('jenkins-it-prod-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }

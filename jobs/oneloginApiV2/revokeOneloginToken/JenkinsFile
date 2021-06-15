@@ -1,0 +1,40 @@
+import groovy.json.JsonSlurperClassic
+
+def skipRemainingStages = false
+
+pipeline {
+    agent any
+    stages {
+        stage("00 - Revoke Access Token") {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: env.clientCredentialId, usernameVariable: 'olClientId', passwordVariable: 'olClientSecret'),
+                    string(credentialsId: env.accessTokenCredentialId, variable: 'olAccessToken')
+                ]) {
+                    script {
+                        // set api endpoint
+                        String url = "https://api." + env.oneloginDomainRegion + ".onelogin.com/auth/oauth2/revoke"
+                        // execute curl
+                        String response = sh(
+                            script: """
+                                curl $url \
+                                -X POST \
+                                -H "Authorization: client_id:\$olClientId, client_secret:\$olClientSecret" \
+                                -H "Content-Type: application/json" \
+                                -d "{\\"access_token\\":\\"\$olAccessToken\\"}"
+                            """,
+                            returnStdout: true
+                        ).trim()
+                        // parse json response
+                        revokeOneloginAccessToken = new JsonSlurperClassic().parseText(response)
+                        // check if reponse indicated a failure
+                        if (revokeOneloginAccessToken['status']['error'] == true) {
+                            // throw error
+                            error('Error: Failed to revoke access token.')
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
