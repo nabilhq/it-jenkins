@@ -122,7 +122,7 @@ jobs:
       pipelineJob('codeDeploy/deployJenkinsConfig') {
         description('deploys a new config and or job.')
         parameters {
-          stringParam('gitBranch', '*/nabil/ol-token-rotation', 'github branch to use.')
+          stringParam('gitBranch', '*/main', 'github branch to use.')
           stringParam('awsSMJenkinsYamlConfigParamsId', 'jenkins-it-prod-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params')
           stringParam('awsRegion', 'us-east-1', 'aws region where the aws secret is.')
         }
@@ -131,7 +131,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/codeDeploy/deployJenkinsConfig/Jenkinsfile'
+            scriptPath 'jobs/codeDeploy/deployJenkinsConfig/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -161,7 +161,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/codeDeploy/prepareJcasc/Jenkinsfile'
+            scriptPath 'jobs/codeDeploy/prepareJcasc/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -204,7 +204,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/apiTokenRotation/onelogin/Jenkinsfile'
+            scriptPath 'jobs/apiTokenRotation/onelogin/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -230,7 +230,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/apiTokenRotation/onelogin/Jenkinsfile'
+            scriptPath 'jobs/apiTokenRotation/onelogin/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -261,7 +261,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/oneloginApiV2/revokeOneloginToken/Jenkinsfile'
+            scriptPath 'jobs/oneloginApiV2/revokeOneloginToken/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -287,7 +287,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/oneloginApiV2/getOneloginUsers/Jenkinsfile'
+            scriptPath 'jobs/oneloginApiV2/getOneloginUsers/JenkinsFile'
             scm {
               git {
                 remote { 
