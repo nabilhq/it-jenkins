@@ -192,7 +192,7 @@ jobs:
       }
   - script: >
       folder('apiTokenRotation') {
-        displayName('API Token Rotation')
+        displayName('apiTokenRotation')
         description('contains pipelines that rotate api tokens.')
       }
   - script: >
@@ -249,7 +249,7 @@ jobs:
       }
   - script: >
       folder('oneloginApiV2') {
-        displayName('OneLogin API v2')
+        displayName('oneloginApiV2')
         description('contains pipelines that invoke onelogin api v2 enpoints.')
       }
   - script: >
