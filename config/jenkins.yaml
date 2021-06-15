@@ -49,6 +49,7 @@ security:
     - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
     - "new groovy.json.JsonSlurperClassic"
     - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object java.lang.String"
+    - "staticMethod io.jenkins.plugins.casc.ConfigurationAsCode get"
 unclassified:
   awsCredentialsProvider:
     cache: true
