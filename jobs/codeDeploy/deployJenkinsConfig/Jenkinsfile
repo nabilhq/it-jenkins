@@ -33,7 +33,7 @@ pipeline {
                         wait: true,
                         parameters: [
                             stringParam(name: 'gitBranch', value: env.gitBranch),
-                            stringParam(name: 'gitAccount', value: secretValue['serviceName']),
+                            stringParam(name: 'gitAccount', value: secretValue['gitAccount']),
                             stringParam(name: 'gitRepo', value: secretValue['gitRepo']),
                             stringParam(name: 'serviceName', value: secretValue['serviceName']),
                             stringParam(name: 'environment', value: secretValue['environment']),
