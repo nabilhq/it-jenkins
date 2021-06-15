@@ -9,8 +9,8 @@ pipeline {
                         sed -i 's/{serviceName}/$serviceName/g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's/{domain}/$domainName/g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's/{environment}/$environment/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{adminUsername}/$adminUsername}/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{adminEmail}/$adminEmail}/g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's/{adminUsername}/$adminUsername/g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's/{adminEmail}/$adminEmail/g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's/{gitAccount}/$gitAccount/g' $JENKINS_HOME/jenkins.yaml
                         sed -i 's/{gitRepo}/$gitRepo/g' $JENKINS_HOME/jenkins.yaml
                     """
