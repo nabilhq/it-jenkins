@@ -284,7 +284,7 @@ jobs:
         parameters {
           stringParam('credentialId', null, 'id of the credential to use.')
           stringParam('email', null, 'email of the user to return.')
-          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
           stringParam('gitBranch', '*/main', 'github branch to use.')
         }
         definition {
