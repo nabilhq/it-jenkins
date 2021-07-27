@@ -72,27 +72,28 @@ unclassified:
     apiRateLimitChecker: ThrottleForNormalize
   gitHubPluginConfig:
     configs:
-    - credentialsId: "{serviceName}-{environment}-github-at"
+    - credentialsId: "{serviceName}-github-at"
       manageHooks: false
       name: "github"
     hookSecretConfigs:
-    - credentialsId: "{serviceName}-{environment}-github-webhook-shared-secret"
-    hookUrl: "https://{serviceName}.{domain}/github-webhook/"
+    - credentialsId: "{serviceName}-github-webhook-shared-secret"
+    hookUrl: "https://{hostname}.{domain}/github-webhook/"
   gitSCM:
     createAccountBasedOnEmail: false
     showEntireCommitSummaryInChanges: false
     useExistingAccountWithSameEmail: false
   globalSlackNotifier:
     notifyOnAborted: false
-    notifyOnFail: false
+    notifyOnFail: true
     notifyOnNotBuilt: false
-    notifyOnSuccess: false
+    notifyOnSuccess: true
     notifyOnUnstable: false
+    failureMessage: "@channel"
   junitTestResultStorage:
     storage: "file"
   location:
     adminAddress: "{adminEmail}"
-    url: "https://{serviceName}.{domain}/"
+    url: "https://{hostname}.{domain}/"
   mailer:
     charset: "UTF-8"
     useSsl: false
@@ -116,6 +117,11 @@ tool:
     settingsProvider: "standard"
 jobs:
   - script: >
+      folder('archive') {
+        displayName('Job Archive')
+        description('contains pipelines that have been archived.')
+      }
+  - script: >
       folder('codeDeploy') {
         displayName('Code Deploy')
         description('contains pipelines used for deploying jenkins configs.')
@@ -124,9 +130,9 @@ jobs:
       pipelineJob('codeDeploy/deployJenkinsConfig') {
         description('deploys a new config and or job.')
         parameters {
-          stringParam('gitBranch', '*/main', 'github branch to use.')
-          stringParam('awsSMJenkinsYamlConfigParamsId', 'jenkins-it-prod-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params.')
-          stringParam('awsRegion', 'us-east-1', 'aws region where the aws secret is.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
+          stringParam('awsSMJenkinsYamlConfigParamsId', 'it-jenkins-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params.')
+          stringParam('awsRegion', '{awsRegion}', 'aws region where the aws secret is.')
         }
         triggers {
           githubPush()
@@ -160,6 +166,8 @@ jobs:
           stringParam('domainName', null, 'domain name to use when preparing the jcasc file.')
           stringParam('adminUsername', null, 'jenkins admin user name to use when preparing the jcasc file.')
           stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file..')
+          stringParam('awsRegion', null, 'aws region to use.')
+          booleanParam('clearCronTriggers', false, 'if set to true, will clear all cron triggers.')
         }
         definition {
           cpsScm {
@@ -192,7 +200,7 @@ jobs:
       }
   - script: >
       folder('apiTokenRotation') {
-        displayName('apiTokenRotation')
+        displayName('API Token Rotation')
         description('contains pipelines that rotate api tokens.')
       }
   - script: >
@@ -202,7 +210,7 @@ jobs:
           stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-manage-all', 'id of the credential to use.')
           stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-manage-all', 'id of the aws secret to store the new access token.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
-          stringParam('gitBranch', '*/main', 'github branch to use.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
         definition {
           cpsScm {
@@ -228,7 +236,7 @@ jobs:
           stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-read', 'id of the credential to use.')
           stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-read', 'id of the aws secret to store the new access token.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
-          stringParam('gitBranch', '*/main', 'github branch to use.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
         definition {
           cpsScm {
@@ -249,7 +257,7 @@ jobs:
       }
   - script: >
       folder('oneloginApiV2') {
-        displayName('oneloginApiV2')
+        displayName('OneLogin API V2')
         description('contains pipelines that invoke onelogin api v2 enpoints.')
       }
   - script: >
@@ -259,7 +267,7 @@ jobs:
           stringParam('clientCredentialId', null, 'id of the client credential.')
           stringParam('accessTokenCredentialId', null, 'id of the access token token credential.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
-          stringParam('gitBranch', '*/main', 'github branch to use.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
         definition {
           cpsScm {
@@ -285,7 +293,7 @@ jobs:
           stringParam('credentialId', null, 'id of the credential to use.')
           stringParam('email', null, 'email of the user to return.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
-          stringParam('gitBranch', '*/main', 'github branch to use.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
         definition {
           cpsScm {

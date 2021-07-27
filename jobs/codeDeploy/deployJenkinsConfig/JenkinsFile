@@ -1,17 +1,49 @@
+/*
+{
+    "title" : "Deploy Jenkins configuration.",
+    "job_name" : "deployJenkinsConfig",
+    "docs" : "",
+    "parent" : "codeDeploy",
+    "notes" : [
+        "description" : "Deploys a new jenkins.yaml file to it-jenkins instances."
+    ]
+}
+*/
 import groovy.json.JsonSlurperClassic
 
 pipeline {
     agent any
     stages {
-        stage ('00 - Get jenkins.yaml params') {
+        stage ('00 - Get jenkins.yaml params prod') {
             when {
                 changeset "**/jenkins.yaml"
+                expression {
+                    !env.JENKINS_URL.contains("staging")
+                }
             }
             steps {
                 script {
                     env.response = sh(
                         script: """
-                            aws secretsmanager get-secret-value --secret-id $awsSMJenkinsYamlConfigParamsId --region $awsRegion
+                            aws secretsmanager get-secret-value --secret-id $awsSMJenkinsYamlConfigParamsId-prod --region $awsRegion
+                        """,
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        stage ('05 - Get jenkins.yaml params staging') {
+            when {
+                changeset "**/jenkins.yaml"
+                expression {
+                    env.JENKINS_URL.contains("staging")
+                }
+            }
+            steps {
+                script {
+                    env.response = sh(
+                        script: """
+                            aws secretsmanager get-secret-value --secret-id $awsSMJenkinsYamlConfigParamsId-staging --region $awsRegion
                         """,
                         returnStdout: true
                     ).trim()
@@ -26,26 +58,27 @@ pipeline {
                 script {
                     // parse json response
                     def secretValue = new JsonSlurperClassic().parseText(new JsonSlurperClassic().parseText(env.response)['SecretString'])
-                    // trigger build to revoke access token
+                    // build step  to prepare jenkins.yaml config
                     build(
                         job: 'codeDeploy/prepareJcasc', 
                         propagate: true, 
                         wait: true,
                         parameters: [
-                            stringParam(name: 'gitBranch', value: env.gitBranch),
                             stringParam(name: 'gitAccount', value: secretValue['gitAccount']),
                             stringParam(name: 'gitRepo', value: secretValue['gitRepo']),
+                            stringParam(name: 'gitBranch', value: secretValue['gitBranch']),
+                            stringParam(name: 'hostname', value: secretValue['hostname']),
                             stringParam(name: 'serviceName', value: secretValue['serviceName']),
-                            stringParam(name: 'environment', value: secretValue['environment']),
                             stringParam(name: 'domainName', value: secretValue['domain']),
                             stringParam(name: 'adminUsername', value: secretValue['adminUsername']),
-                            stringParam(name: 'adminEmail', value: secretValue['adminEmail'])
+                            stringParam(name: 'adminEmail', value: secretValue['adminEmail']),
+                            stringParam(name: 'awsRegion', value: secretValue['awsRegion'])
                         ]
                     )
                 }
             }
         }
-        stage ('20 - Reload jenkins.yaml') {
+        stage ('15 - Reload jenkins.yaml') {
             when {
                 changeset "**/jenkins.yaml"
             }
