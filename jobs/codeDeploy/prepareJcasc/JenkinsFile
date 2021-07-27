@@ -1,3 +1,14 @@
+    /*
+    {
+        "title" : "Prepare Jenkins Casc config",
+        "job_name" : "prepareJcasc",
+        "docs" : "",
+        "parent" : "codeDeploy",
+        "notes" : [
+            "description" : "Prepares the jenkins.yaml configuration file for deployment."
+        ]
+    }
+    */
 pipeline {
     agent any
     stages {
@@ -5,14 +16,16 @@ pipeline {
             steps {
                 sh(
                     script: """
-                        cp $WORKSPACE/config/jenkins.yaml $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{serviceName}/$serviceName/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{domain}/$domainName/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{environment}/$environment/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{adminUsername}/$adminUsername/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{adminEmail}/$adminEmail/g;' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{gitAccount}/$gitAccount/g' $JENKINS_HOME/jenkins.yaml
-                        sed -i 's/{gitRepo}/$gitRepo/g' $JENKINS_HOME/jenkins.yaml
+                        cp $WORKSPACE/it-jenkins/config/jenkins.yaml $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{gitAccount}#$gitAccount#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{gitRepo}#$gitRepo#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{githubBranch}#$gitBranch#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{hostname}#$hostname#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{serviceName}#$serviceName#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{domain}#$domainName#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{adminUsername}#$adminUsername#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{adminEmail}#$adminEmail#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{awsRegion}#$awsRegion#g;' $JENKINS_HOME/jenkins.yaml
                     """
                 )
             }
