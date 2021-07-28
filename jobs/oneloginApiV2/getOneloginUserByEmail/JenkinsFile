@@ -1,11 +1,11 @@
 /*
 {
-    "title" : "Get OneLogin User By Id",
-    "job_name" : "getOneloginUserById",
-    "docs" : "https://developers.onelogin.com/api-docs/2/users/get-user",
+    "title" : "Get OneLogin User By Email",
+    "job_name" : "getOneloginUserByEmail",
+    "docs" : "https://developers.onelogin.com/api-docs/2/users/list-users",
     "parent" : "oneloginAPIV2",
     "notes" : [
-        "description" : "Use this API to get back a single user from a OneLogin account."
+        "description" : "Use this API to get back a single user from a OneLogin account by their email."
     ]
 }
 */
@@ -13,7 +13,7 @@
 pipeline {
     agent any
     stages {
-        stage("00 - Get OneLogin User By Id") {
+        stage("00 - Get OneLogin User By Email") {
             steps {
                 withCredentials([
                     string(credentialsId: env.credentialId, variable: 'olAccessToken')
@@ -28,7 +28,7 @@ pipeline {
                                 Headers = @{
                                     Authorization  = ("bearer " + $Env:olAccessToken)
                                 }
-                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users/" + $Env:id)
+                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users?" + $Env:email)
                             }
                             Try {
                                 # invoke rest method

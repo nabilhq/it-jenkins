@@ -338,3 +338,29 @@ jobs:
           }
         }
       }
+  - script: >
+      pipelineJob('oneloginApiV2/getOneloginUserByEmail') {
+        description('Use this API to get back a single user from a OneLogin account.')
+        parameters {
+          stringParam('email', null, 'email of the user to return.')
+          stringParam('credentialId', 'it-jenkins-prod-ol-api-access-token-read', 'id of the credential to use.')
+          stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/oneloginApiV2/getOneloginUserByEmail/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('it-jenkins-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
