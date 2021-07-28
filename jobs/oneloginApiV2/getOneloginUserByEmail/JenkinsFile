@@ -28,7 +28,7 @@ pipeline {
                                 Headers = @{
                                     Authorization  = ("bearer " + $Env:olAccessToken)
                                 }
-                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users?" + $Env:email)
+                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users?email=" + $Env:email)
                             }
                             Try {
                                 # invoke rest method
