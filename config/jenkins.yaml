@@ -343,7 +343,7 @@ jobs:
         description('Use this API to get back a single user from a OneLogin account.')
         parameters {
           stringParam('email', null, 'email of the user to return.')
-          stringParam('credentialId', 'it-jenkins-prod-ol-api-access-token-read', 'id of the credential to use.')
+          stringParam('credentialId', 'it-jenkins-prod-ol-api-access-token-read', 'email of the credential to use.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
           stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
