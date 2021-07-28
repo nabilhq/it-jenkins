@@ -394,3 +394,29 @@ jobs:
           }
         }
       }
+  - script: >
+      pipelineJob('oktaAPI/getOktaUserByLogin') {
+        description('Fetches a specific user when you know the user login.')
+        parameters {
+          stringParam('login', null, 'login of the user to return.')
+          stringParam('credentialId', 'it-jenkins-prod-okta-api-access-token', 'id of the credential to use.')
+          stringParam('oktaDomain', null, 'okta domain to target.')
+          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
+        }
+        definition {
+          cpsScm {
+            scriptPath 'jobs/oktaAPI/getOktaUserByLogin/JenkinsFile'
+            scm {
+              git {
+                remote { 
+                  url 'https://github.com/{gitAccount}/{gitRepo}'
+                  credentials('it-jenkins-github-creds')
+                }
+                branch('^${gitBranch}')
+                extensions {}
+              }
+            }
+            lightweight(lightweight = false)
+          }
+        }
+      }
