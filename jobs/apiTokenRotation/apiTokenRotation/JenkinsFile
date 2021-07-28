@@ -53,7 +53,7 @@ pipeline {
                             Try {
                                 # invoke rest method
                                 $response = Invoke-RestMethod @params
-                                Write-Output $response.access_token
+                                Write-Output $response.data.access_token
                             } Catch {
                                 Write-Host $_.ErrorDetails.Message
                                 exit 1

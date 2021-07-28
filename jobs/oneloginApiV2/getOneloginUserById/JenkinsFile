@@ -1,0 +1,48 @@
+/*
+{
+    "title" : "Get OneLogin User By Id",
+    "job_name" : "getOneloginUserById",
+    "docs" : "https://developers.onelogin.com/api-docs/2/users/get-user",
+    "parent" : "oneloginAPIV2",
+    "notes" : [
+        "description" : "Use this API to get back a single user from a OneLogin account."
+    ]
+}
+*/
+
+pipeline {
+    agent any
+    stages {
+        stage("00 - Revoke Access Token") {
+            steps {
+                withCredentials([
+                    string(credentialsId: env.accessTokenCredentialId, variable: 'olAccessToken')
+                ]) {
+                    script {
+                        env.response = powershell(
+                            returnStdout: true,
+                            script: '''
+                            # define params
+                            $params = @{
+                                Method = "POST"
+                                Headers = @{
+                                    Authorization  = ("Bearer " + $Env:olAccessToken)
+                                }
+                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users/" + $Env:id)
+                            }
+                            Try {
+                                # invoke rest method
+                                $response = Invoke-RestMethod @params
+                                Write-Host ($response | ConvertTo-Json)
+                                Write-Output ($response | ConvertTo-Json)
+                            } Catch {
+                                Write-Host $_.ErrorDetails.Message
+                                exit 1
+                            }
+                        ''')
+                    }
+                }
+            }
+        }
+    }
+}
