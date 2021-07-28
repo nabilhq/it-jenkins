@@ -131,7 +131,6 @@ jobs:
       pipelineJob('codeDeploy/deployJenkinsConfig') {
         description('deploys a new config and or job.')
         parameters {
-          stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
           stringParam('awsSMJenkinsYamlConfigParamsId', 'it-jenkins-jenkins-yaml-config-params', 'id of the aws secret with jenkins.yaml config params.')
           stringParam('awsRegion', '{awsRegion}', 'aws region where the aws secret is.')
         }
@@ -147,7 +146,7 @@ jobs:
                   url 'https://github.com/{gitAccount}/{gitRepo}'
                   credentials('it-jenkins-github-creds')
                 }
-                branch('^${gitBranch}')
+                branch('{githubBranch}')
                 extensions {}
               }
             }
