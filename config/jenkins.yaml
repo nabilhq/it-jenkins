@@ -145,7 +145,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-prod-github-creds')
+                  credentials('jenkins-it-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -163,7 +163,7 @@ jobs:
           stringParam('gitRepo', null, 'github repo to use.')
           stringParam('gitBranch', null, 'githup branch to use.')
           stringParam('serviceName', null, 'service name to use when preparing the jcasc file.')
-          stringParam('environment', null, 'environment tag to use when preparing the jcasc file.')
+          stringParam('hostname', null, 'hostname of the jenkins instance.')
           stringParam('domainName', null, 'domain name to use when preparing the jcasc file.')
           stringParam('adminUsername', null, 'jenkins admin user name to use when preparing the jcasc file.')
           stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file..')
@@ -177,7 +177,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-prod-github-creds')
+                  credentials('jenkins-it-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -220,7 +220,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-prod-github-creds')
+                  credentials('jenkins-it-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -246,7 +246,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-prod-github-creds')
+                  credentials('jenkins-it-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -277,7 +277,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-prod-github-creds')
+                  credentials('jenkins-it-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -303,7 +303,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-prod-github-creds')
+                  credentials('jenkins-it-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}

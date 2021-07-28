@@ -16,7 +16,7 @@ pipeline {
             steps {
                 sh(
                     script: """
-                        cp $WORKSPACE/it-jenkins/config/jenkins.yaml $JENKINS_HOME/jenkins.yaml
+                        cp $WORKSPACE/config/jenkins.yaml $JENKINS_HOME/jenkins.yaml
                         sed -i 's#{gitAccount}#$gitAccount#g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's#{gitRepo}#$gitRepo#g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's#{githubBranch}#$gitBranch#g;' $JENKINS_HOME/jenkins.yaml
