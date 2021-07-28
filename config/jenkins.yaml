@@ -145,7 +145,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-github-creds')
+                  credentials('it-jenkins-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -177,7 +177,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-github-creds')
+                  credentials('it-jenkins-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -208,8 +208,8 @@ jobs:
       pipelineJob('apiTokenRotation/oneloginManageAll') {
         description('rotates the onelogin api token.')
         parameters {
-          stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-manage-all', 'id of the credential to use.')
-          stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-manage-all', 'id of the aws secret to store the new access token.')
+          stringParam('credentialId', 'it-jenkins-prod-ol-api-client-creds-manage-all', 'id of the credential to use.')
+          stringParam('awsSecretId', 'it-jenkins-prod-ol-api-access-token-manage-all', 'id of the aws secret to store the new access token.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
           stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
@@ -220,7 +220,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-github-creds')
+                  credentials('it-jenkins-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -234,8 +234,8 @@ jobs:
       pipelineJob('apiTokenRotation/oneloginRead') {
         description('rotates the onelogin api token.')
         parameters {
-          stringParam('credentialId', 'jenkins-it-prod-ol-api-client-creds-read', 'id of the credential to use.')
-          stringParam('awsSecretId', 'jenkins-it-prod-ol-api-access-token-read', 'id of the aws secret to store the new access token.')
+          stringParam('credentialId', 'it-jenkins-prod-ol-api-client-creds-read', 'id of the credential to use.')
+          stringParam('awsSecretId', 'it-jenkins-prod-ol-api-access-token-read', 'id of the aws secret to store the new access token.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
           stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
@@ -246,7 +246,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-github-creds')
+                  credentials('it-jenkins-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -277,7 +277,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-github-creds')
+                  credentials('it-jenkins-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
@@ -303,7 +303,7 @@ jobs:
               git {
                 remote { 
                   url 'https://github.com/{gitAccount}/{gitRepo}'
-                  credentials('jenkins-it-github-creds')
+                  credentials('it-jenkins-github-creds')
                 }
                 branch('^${gitBranch}')
                 extensions {}
