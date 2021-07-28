@@ -1,6 +1,14 @@
-import groovy.json.JsonSlurperClassic
-
-def skipRemainingStages = false
+/*
+{
+    "title" : "Revoke OneLogin Token",
+    "job_name" : "revokeOneLoginToken",
+    "docs" : "https://developers.onelogin.com/api-docs/2/oauth20-tokens/revoke-tokens",
+    "parent" : "oneloginAPIV2",
+    "notes" : [
+        "description" : "Revoke an access token and refresh token pair."
+    ]
+}
+*/
 
 pipeline {
     agent any
@@ -12,26 +20,30 @@ pipeline {
                     string(credentialsId: env.accessTokenCredentialId, variable: 'olAccessToken')
                 ]) {
                     script {
-                        // set api endpoint
-                        String url = "https://api." + env.oneloginDomainRegion + ".onelogin.com/auth/oauth2/revoke"
-                        // execute curl
-                        String response = sh(
-                            script: """
-                                curl $url \
-                                -X POST \
-                                -H "Authorization: client_id:\$olClientId, client_secret:\$olClientSecret" \
-                                -H "Content-Type: application/json" \
-                                -d "{\\"access_token\\":\\"\$olAccessToken\\"}"
-                            """,
-                            returnStdout: true
-                        ).trim()
-                        // parse json response
-                        revokeOneloginAccessToken = new JsonSlurperClassic().parseText(response)
-                        // check if reponse indicated a failure
-                        if (revokeOneloginAccessToken['status']['error'] == true) {
-                            // throw error
-                            error('Error: Failed to revoke access token.')
-                        }
+                        env.response = powershell(
+                            returnStdout: true,
+                            script: '''
+                            # define params
+                            $params = @{
+                                Method = "POST"
+                                Headers = @{
+                                    Authorization  = ("Basic " + [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Env:olClientId + ":" + $Env:olClientSecret)))
+                                    "Content-Type" = "application/json"
+                                }
+                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/auth/oauth2/revoke")
+                                Body = @{
+                                    access_token = $Env:olAccessToken
+                                } | ConvertTo-Json
+                            }
+                            Try {
+                                # invoke rest method
+                                $response = Invoke-RestMethod @params
+                                Write-Host ($response | ConvertTo-Json)
+                            } Catch {
+                                Write-Host $_.ErrorDetails.Message
+                                exit 1
+                            }
+                        ''')
                     }
                 }
             }

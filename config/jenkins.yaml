@@ -48,7 +48,8 @@ security:
     approvedSignatures:
     - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
     - "new groovy.json.JsonSlurperClassic"
-    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object java.lang.String"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object\
+      \ java.lang.String"
     - "staticMethod io.jenkins.plugins.casc.ConfigurationAsCode get"
     - "method io.jenkins.plugins.casc.ConfigurationAsCode configure"
 unclassified:
@@ -214,7 +215,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/apiTokenRotation/onelogin/JenkinsFile'
+            scriptPath 'jobs/apiTokenRotation/apiTokenRotation/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -240,7 +241,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/apiTokenRotation/onelogin/JenkinsFile'
+            scriptPath 'jobs/apiTokenRotation/apiTokenRotation/JenkinsFile'
             scm {
               git {
                 remote { 

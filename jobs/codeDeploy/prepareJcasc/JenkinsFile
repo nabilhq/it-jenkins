@@ -1,14 +1,14 @@
-    /*
-    {
-        "title" : "Prepare Jenkins Casc config",
-        "job_name" : "prepareJcasc",
-        "docs" : "",
-        "parent" : "codeDeploy",
-        "notes" : [
-            "description" : "Prepares the jenkins.yaml configuration file for deployment."
-        ]
-    }
-    */
+/*
+{
+    "title" : "Prepare Jenkins Casc config",
+    "job_name" : "prepareJcasc",
+    "docs" : "",
+    "parent" : "codeDeploy",
+    "notes" : [
+        "description" : "Prepares the jenkins.yaml configuration file for deployment."
+    ]
+}
+*/
 pipeline {
     agent any
     stages {

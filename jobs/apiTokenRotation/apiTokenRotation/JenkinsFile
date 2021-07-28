@@ -1,0 +1,81 @@
+/*
+{
+    "title" : "Rotate OneLogin API Token",
+    "job_name" : "rotateOneloginAPIToken",
+    "docs" : "",
+    "parent" : "apiTokenRotation",
+    "notes" : [
+        "description" : "genereates a new onelogin api token and updates AWS Secrets Manager"
+    ]
+}
+*/
+
+pipeline {
+    agent any
+    stages {
+        stage("00 - Revoke OneLogin Token") {
+            steps {
+                script {
+                    // trigger build to revoke access token
+                    def revokeOneloginToken = build(
+                        job: 'oneloginApiV2/revokeOneloginToken', 
+                        propagate: true, 
+                        wait: true,
+                        parameters: [
+                            stringParam(name: 'clientCredentialId', value: env.credentialId),
+                            stringParam(name: 'accessTokenCredentialId', value: env.awsSecretId)
+                        ]
+                    )
+                }
+            }
+        }
+        stage("10 - Generate OneLogin Access Token") {
+            steps {
+                withCredentials([
+                    usernamePassword(credentialsId: env.credentialId, usernameVariable: 'olClientId', passwordVariable: 'olClientSecret')
+                ]) {
+                    script {
+                        getOneloginAccessToken = powershell(
+                            returnStdout: true,
+                            script: '''
+                            # define params
+                            $params = @{
+                                Method = "POST"
+                                Headers = @{
+                                    Authorization  = ("Basic " + [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($Env:olClientId + ":" + $Env:olClientSecret)))
+                                    "Content-Type" = "application/json"
+                                }
+                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/auth/oauth2/token")
+                                Body = @{
+                                    grant_type = "client_credentials"
+                                } | ConvertTo-Json
+                            }
+                            Try {
+                                # invoke rest method
+                                $response = Invoke-RestMethod @params
+                                Write-Output $response.access_token
+                            } Catch {
+                                Write-Host $_.ErrorDetails.Message
+                                exit 1
+                            }
+                        ''')
+                    }
+                }
+            }
+        }
+        stage("20 - Update AWS Secret") {
+            steps {
+                script {
+                    // update aws secret
+                    sh(
+                        script: """
+                            set +x
+                            aws secretsmanager update-secret --secret-id=$awsSecretId --secret-string=${getOneloginAccessToken}
+                        """,
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,11 @@
+/*
+{
+    "title" : "Get OneLogin Users",
+    "job_name" : "getOneloginUsers",
+    "docs" : "https://developers.onelogin.com/api-docs/2/users/list-users",
+    "parent" : "oneloginAPIV2",
+    "notes" : [
+        "description" : "Use this API to get a paginated list of users in a OneLogin account."
+    ]
+}
+*/
