@@ -166,7 +166,7 @@ jobs:
           stringParam('domainName', null, 'domain name to use when preparing the jcasc file.')
           stringParam('adminUsername', null, 'jenkins admin user name to use when preparing the jcasc file.')
           stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file.')
-          stringParam('s3ExportDirectory', null, 'specify s3 bucket path to export response files to.')
+          stringParam('s3ExportDirectory', null, 's3 bucket path to export response files to.')
           stringParam('awsRegion', null, 'aws region to use.')
           booleanParam('clearCronTriggers', false, 'if set to true, will clear all cron triggers.')
         }

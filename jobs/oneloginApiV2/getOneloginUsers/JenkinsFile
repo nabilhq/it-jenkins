@@ -35,7 +35,7 @@ pipeline {
                                 $response = Invoke-RestMethod @params -FollowRelLink
                                 $fileOutput = ($Env:s3ExportDirectory + 'get_onelogin_users_' + (Get-Date -f yyyy-MM-dd-THH-mm-ss) + '.json')
                                 $response | ConvertTo-Json | Out-File -Path $fileOutput
-                                Write-Output fileOutput
+                                Write-Output $fileOutput
                             } Catch {
                                 Write-Host $_.ErrorDetails.Message
                                 exit 1
