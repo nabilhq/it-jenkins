@@ -72,7 +72,7 @@ pipeline {
                             stringParam(name: 'domainName', value: secretValue['domain']),
                             stringParam(name: 'adminUsername', value: secretValue['adminUsername']),
                             stringParam(name: 'adminEmail', value: secretValue['adminEmail']),
-                            stringParam(name: 's3ExportDirectory', value: secretValue['s3ExportDirectory'])
+                            stringParam(name: 's3ExportDirectory', value: secretValue['s3ExportDirectory']),
                             stringParam(name: 'awsRegion', value: secretValue['awsRegion'])
                         ]
                     )
