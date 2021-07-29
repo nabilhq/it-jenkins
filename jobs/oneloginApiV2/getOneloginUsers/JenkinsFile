@@ -30,14 +30,22 @@ pipeline {
                                 }
                                 Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users")
                             }
+                            # execute api call
                             Try {
                                 # invoke rest method
                                 $response = Invoke-RestMethod @params -FollowRelLink
+                                # set export file pat
                                 $fileOutput = ($Env:s3ExportDirectory + 'get_onelogin_users_' + (Get-Date -f yyyy-MM-dd-THH-mm-ss) + '.json')
+                                # export result to file
                                 $response | ConvertTo-Json | Out-File -Path $fileOutput
+                                # write output file path to the console
+                                Write-Host $fileOutput
+                                # return the file path
                                 Write-Output $fileOutput
                             } Catch {
+                                # write error to console
                                 Write-Host $_.ErrorDetails.Message
+                                # throw error
                                 exit 1
                             }
                         ''')

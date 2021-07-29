@@ -371,7 +371,7 @@ jobs:
         description('contains pipelines that invoke okta api enpoints.')
       }
   - script: >
-      pipelineJob('oktaAPI/getOktaUserById') {
+      pipelineJob('oktaAPI/getOktaUserWithId') {
         description('Fetches a specific user when you know the user id.')
         parameters {
           stringParam('id', null, 'id of the user to return.')
@@ -381,7 +381,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/oktaAPI/getOktaUserById/JenkinsFile'
+            scriptPath 'jobs/oktaAPI/getOktaUserWithId/JenkinsFile'
             scm {
               git {
                 remote { 
@@ -397,7 +397,7 @@ jobs:
         }
       }
   - script: >
-      pipelineJob('oktaAPI/getOktaUserByLogin') {
+      pipelineJob('oktaAPI/getOktaUserWithLogin') {
         description('Fetches a specific user when you know the user login.')
         parameters {
           stringParam('login', null, 'login of the user to return.')
@@ -407,7 +407,7 @@ jobs:
         }
         definition {
           cpsScm {
-            scriptPath 'jobs/oktaAPI/getOktaUserByLogin/JenkinsFile'
+            scriptPath 'jobs/oktaAPI/getOktaUserWithLogin/JenkinsFile'
             scm {
               git {
                 remote { 

@@ -35,12 +35,16 @@ pipeline {
                                     access_token = $Env:olAccessToken
                                 } | ConvertTo-Json
                             }
+                            # execute api call
                             Try {
                                 # invoke rest method
                                 $response = Invoke-RestMethod @params
+                                # write response to console
                                 Write-Host ($response | ConvertTo-Json)
                             } Catch {
+                                # write error to console
                                 Write-Host $_.ErrorDetails.Message
+                                # throw error
                                 exit 1
                             }
                         ''')
