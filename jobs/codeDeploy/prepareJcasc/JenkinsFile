@@ -25,6 +25,7 @@ pipeline {
                         sed -i 's#{domain}#$domainName#g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's#{adminUsername}#$adminUsername#g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's#{adminEmail}#$adminEmail#g;' $JENKINS_HOME/jenkins.yaml
+                        sed -i 's#{s3ExportDirectory}#$s3ExportDirectory#g;' $JENKINS_HOME/jenkins.yaml
                         sed -i 's#{awsRegion}#$awsRegion#g;' $JENKINS_HOME/jenkins.yaml
                     """
                 )

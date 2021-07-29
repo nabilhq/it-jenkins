@@ -165,7 +165,8 @@ jobs:
           stringParam('hostname', null, 'hostname of the jenkins instance.')
           stringParam('domainName', null, 'domain name to use when preparing the jcasc file.')
           stringParam('adminUsername', null, 'jenkins admin user name to use when preparing the jcasc file.')
-          stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file..')
+          stringParam('adminEmail', null, 'jenkins admin email to use when preparing the jcasc file.')
+          stringParam('s3ExportDirectory', null, 's3 bucket path to export response files to.')
           stringParam('awsRegion', null, 'aws region to use.')
           booleanParam('clearCronTriggers', false, 'if set to true, will clear all cron triggers.')
         }
@@ -290,6 +291,7 @@ jobs:
       pipelineJob('oneloginApiV2/getOneloginUsers') {
         description('returns onelogin user(s).; if no params are provided this pipeline returns all users.')
         parameters {
+          stringParam('s3ExportDirectory', '{s3ExportDirectory}', 'S3 bucket to export the json response to.')
           stringParam('credentialId', 'it-jenkins-prod-ol-api-access-token-read', 'id of the credential to use.')
           stringParam('oneloginDomainRegion', 'us', 'domain for region that your OneLogin account resides in.')
           stringParam('gitBranch', '{githubBranch}', 'github branch to use.')

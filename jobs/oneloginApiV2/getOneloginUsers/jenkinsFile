@@ -9,3 +9,41 @@
     ]
 }
 */
+
+pipeline {
+    agent any
+    stages {
+        stage("00 - Get OneLogin Users") {
+            steps {
+                withCredentials([
+                    string(credentialsId: env.credentialId, variable: 'olAccessToken')
+                ]) {
+                    script {
+                        env.response = powershell(
+                            returnStdout: true,
+                            script: '''
+                            # define params
+                            $params = @{
+                                Method = "GET"
+                                Headers = @{
+                                    Authorization  = ("bearer " + $Env:olAccessToken)
+                                }
+                                Uri = ("https://api." + $Env:oneloginDomainRegion + ".onelogin.com/api/2/users)
+                            }
+                            Try {
+                                # invoke rest method
+                                $response = Invoke-RestMethod @params -FollowRelLink
+                                $fileOutput = ($Env:s3ExportDirectory + 'get_onelogin_users_' + (Get-Date -f yyyy-MM-dd-THH-mm-ss) + '.json')
+                                $response | ConvertTo-Json | Out-File -Path $fileOutput
+                                Write-Output fileOutput
+                            } Catch {
+                                Write-Host $_.ErrorDetails.Message
+                                exit 1
+                            }
+                        ''')
+                    }
+                }
+            }
+        }
+    }
+}
