@@ -56,6 +56,12 @@ pipeline {
             }
             steps {
                 script {
+                    // check host and set clear cron trigger
+                    if (env.JENKINS_URL.contains("staging")) {
+                        env.clearCronTriggers = 'true'
+                    } else {
+                        env.clearCronTriggers = 'false'
+                    }
                     // parse json response
                     def secretValue = new JsonSlurperClassic().parseText(new JsonSlurperClassic().parseText(env.response)['SecretString'])
                     // build step  to prepare jenkins.yaml config
@@ -73,7 +79,8 @@ pipeline {
                             stringParam(name: 'adminUsername', value: secretValue['adminUsername']),
                             stringParam(name: 'adminEmail', value: secretValue['adminEmail']),
                             stringParam(name: 's3ExportDirectory', value: secretValue['s3ExportDirectory']),
-                            stringParam(name: 'awsRegion', value: secretValue['awsRegion'])
+                            stringParam(name: 'awsRegion', value: secretValue['awsRegion']),
+                            booleanParam(name: 'clearCronTriggers', value: env.clearCronTriggers)
                         ]
                     )
                 }
