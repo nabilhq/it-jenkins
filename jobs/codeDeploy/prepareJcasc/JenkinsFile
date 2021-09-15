@@ -31,5 +31,18 @@ pipeline {
                 )
             }
         }
+        stage ('10 - Clear cron triggers') {
+            when {
+                expression {
+                    env.clearCronTriggers == "true"
+                }
+            }
+            steps {
+                script {
+                    def jenkinsYaml = new File("${env.JENKINS_HOME}/jenkins.yaml")
+                    jenkinsYaml.write(jenkinsYaml.text.replaceAll("(cron\\().*","cron('')"))
+                }
+            }
+        }
     }
 }

@@ -17,12 +17,12 @@ jenkins:
   markupFormatter: "plainText"
   mode: NORMAL
   myViewsTabBar: "standard"
-  numExecutors: 2
+  numExecutors: 15
   primaryView:
     all:
       name: "all"
   projectNamingStrategy: "standard"
-  quietPeriod: 5
+  quietPeriod: 0
   remotingSecurity:
     enabled: true
   scmCheckoutRetryCount: 0
@@ -375,7 +375,7 @@ jobs:
         description('Fetches a specific user when you know the user id.')
         parameters {
           stringParam('id', null, 'id of the user to return.')
-          stringParam('credentialId', 'it-jenkins-prod-okta-api-access-token', 'id of the credential to use.')
+          stringParam('credentialId', 'it-jenkins-prod-okta-api-token', 'id of the credential to use.')
           stringParam('oktaDomain', null, 'okta domain to target.')
           stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
@@ -401,7 +401,7 @@ jobs:
         description('Fetches a specific user when you know the user login.')
         parameters {
           stringParam('login', null, 'login of the user to return.')
-          stringParam('credentialId', 'it-jenkins-prod-okta-api-access-token', 'id of the credential to use.')
+          stringParam('credentialId', 'it-jenkins-prod-okta-api-token', 'id of the credential to use.')
           stringParam('oktaDomain', null, 'okta domain to target.')
           stringParam('gitBranch', '{githubBranch}', 'github branch to use.')
         }
