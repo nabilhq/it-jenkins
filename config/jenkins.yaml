@@ -47,11 +47,15 @@ security:
   scriptApproval:
     approvedSignatures:
     - "method groovy.json.JsonSlurperClassic parseText java.lang.String"
+    - "method io.jenkins.plugins.casc.ConfigurationAsCode configure"
     - "new groovy.json.JsonSlurperClassic"
+    - "new java.io.File java.lang.String"
+    - "staticMethod io.jenkins.plugins.casc.ConfigurationAsCode get"
     - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object\
       \ java.lang.String"
-    - "staticMethod io.jenkins.plugins.casc.ConfigurationAsCode get"
-    - "method io.jenkins.plugins.casc.ConfigurationAsCode configure"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getText java.io.File"
+    - "staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods write java.io.File\
+      \ java.lang.String"
 unclassified:
   awsCredentialsProvider:
     cache: true
